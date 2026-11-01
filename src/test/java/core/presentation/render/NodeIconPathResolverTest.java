@@ -40,7 +40,7 @@ class NodeIconPathResolverTest {
   @Test
   void resolve_layerExtendEffectFallsBackToCenter() {
     String path = NodeIconPathResolver.resolve(new NodeEffect.LayerExtendEffect(1));
-    assertEquals("icons/center.png", path, "LayerExtend は専用素材なし → center.png にフォールバック");
+    assertEquals("icons/layer_extend.png", path, "LayerExtend → layer_extend.png");
   }
 
   @Test
