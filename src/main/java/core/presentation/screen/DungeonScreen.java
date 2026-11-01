@@ -111,6 +111,9 @@ public final class DungeonScreen extends ScreenAdapter {
   /** ステータスポップアップ表示中フラグ。true の間はプレイヤー入力・進行を凍結する (モーダル)。 */
   private boolean statusPanelOpen;
 
+  /** ダンジョン内の ESC 一時停止メニュー。 */
+  private PauseMenuController pauseMenu;
+
   /** マップタイル: 壁テクスチャ (チームメイト素材、ピクセルアート、Nearest filter)。 */
   private com.badlogic.gdx.graphics.Texture wallTexture;
 
@@ -157,6 +160,7 @@ public final class DungeonScreen extends ScreenAdapter {
     // bindSkillSlotSizeSupplier は不要 (F1-F4 入力経路を PlayerInputs から削除済)。
     statusPopup = new StatusPopup(game.fonts().large(), game.fonts().isJapaneseAvailable());
     eliteReward = new EliteRewardOrchestrator(game, rng, effects);
+    pauseMenu = new PauseMenuController(game);
     // マップタイルテクスチャをロード (ピクセルアート → Nearest filter で 80px 拡大時のボケ防止)。
     wallTexture = new com.badlogic.gdx.graphics.Texture(Gdx.files.internal("tiles/wall.png"));
     wallTexture.setFilter(
@@ -198,13 +202,54 @@ public final class DungeonScreen extends ScreenAdapter {
 
   @Override
   public void render(float delta) {
-    handleStatusPanelToggle(); // §15-4: Tab でステータスポップアップ開閉
-    if (!statusPanelOpen) {
-      // ステータスポップアップ表示中はゲーム進行を凍結する (モーダル)。
-      updateState(delta);
+    // すでに一時停止メニューが表示中のフレーム: ゲーム側の進行・エフェクト・ポップアップ入力はすべて停止する。
+    // メニューを閉じたフレームも、同じキーやクリックがゲーム操作に流れないよう描画して即 return する。
+    if (pauseMenu != null && pauseMenu.isActive()) {
+      if (pauseMenu.handleInput()) {
+        return; // 画面遷移済み: dispose された DungeonScreen の batch やダイアログに触れない
+      }
+      drawFrame();
+      if (pauseMenu.isActive()) {
+        pauseMenu.render(delta);
+      }
+      return;
+    }
+
+    // ESC の優先順位 (フレーム先頭の状態で先勝ち分岐し、1 回の ESC で 1 動作だけ行う):
+    // 1. ステータスポップアップ表示中 → 閉じる (handleStatusPanelToggle)
+    // 2. プレイヤーターン中にカード選択中 (報酬・層末ポップアップ非表示) → 選択キャンセル (PlayerInputs)
+    // 3. それ以外 (プレイヤーターン / 敵ターン / 層末ノード選択中 / Elite 報酬表示中) → 一時停止メニューを開く
+    boolean wasStatusPanelOpen = statusPanelOpen;
+    boolean canCancelCardSelection =
+        !wasStatusPanelOpen
+            && nodeChoice == null
+            && !eliteReward.isActive()
+            && game.requireRunSession().context().state().phase() == TurnPhase.PLAYER_TURN
+            && playerInputs.pendingCardIndex() >= 0
+            && game.requireRunSession().context().state().player().pendingMoveCount() == 0;
+
+    if (!wasStatusPanelOpen
+        && !canCancelCardSelection
+        && pauseMenu != null
+        && Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
+      pauseMenu.open();
+      drawFrame();
+      pauseMenu.render(delta);
+      return;
+    }
+
+    handleStatusPanelToggle(); // §15-4: Tab / ESC でステータスポップアップ開閉
+    if (!statusPanelOpen && !wasStatusPanelOpen) {
+      // ステータスポップアップ・Elite 報酬ポップアップ表示中はゲーム進行を凍結する (モーダル)。
+      // またステータスを閉じた同一フレームでもゲーム入力を走らせない (ESC 二重処理防止)。
+      if (!eliteReward.isActive()) {
+        updateState(delta);
+      }
       processNewEvents(); // §15-5 / E-8: 新規 DamageDealt → popup + shake / EliteDefeated → カード追加 UI
       effects.advanceEffects(delta); // popup の age 加算 + 期限切れ除去 + shake デクリメント + flash デクリメント
-      eliteReward.handleInput(); // §15-3 / §15-6: Elite 撃破 popup の入力処理
+      if (eliteReward.handleInput()) { // §15-3 / §15-6: Elite 撃破 popup の入力処理
+        playerInputs.reset();
+      }
     }
     drawFrame();
     // Popup は HUD の上に重ねて描画する (CLEARED 中の前面 UI)。drawFrame() で batch.end() 済みのため、
@@ -331,30 +376,54 @@ public final class DungeonScreen extends ScreenAdapter {
         .consume()
         .ifPresent(
             choice -> {
-              // §15-9 / Shop silent fail 通知: 適用前後の Player を比較し、変化が無ければ
-              // Gold 不足等で apply が no-op だったと判断、HUD フラッシュで通知する。
-              // 注: resolveLayerEndChoice は層遷移を行い state.player() を AP リフィル / ドローで
-              // 書き換えるため、before は resolveLayerEndChoice の前にキャプチャしておく。
+              // 確定前に支払い可否を判定し、不可なら理由を flash 表示して同じ 3 択を維持する (F16)。
               core.domain.entity.Player before =
                   game.requireRunSession().context().state().player();
-              game.resolveLayerEndChoice(choice);
               boolean jp = game.fonts().isJapaneseAvailable();
-              if (choice instanceof LayerEndNode.Shop shop
-                  && before.gold().amount() < shop.goldCost()) {
+              if (!choice.canAfford(before)) {
+                if (choice instanceof LayerEndNode.Shop shop) {
+                  showFlash(
+                      (jp
+                              ? Strings.Ja.SHOP_INSUFFICIENT_GOLD_FORMAT
+                              : Strings.En.SHOP_INSUFFICIENT_GOLD_FORMAT)
+                          .formatted(shop.goldCost()));
+                } else if (choice instanceof LayerEndNode.ShopEquipment se) {
+                  showFlash(
+                      (jp
+                              ? Strings.Ja.SHOP_INSUFFICIENT_GOLD_FORMAT
+                              : Strings.En.SHOP_INSUFFICIENT_GOLD_FORMAT)
+                          .formatted(se.goldCost()));
+                } else if (choice instanceof LayerEndNode.Event ev) {
+                  if (ev.soulDelta() < 0 && before.soul().amount() < -ev.soulDelta()) {
+                    showFlash(
+                        (jp
+                                ? Strings.Ja.EVENT_INSUFFICIENT_SOUL_FORMAT
+                                : Strings.En.EVENT_INSUFFICIENT_SOUL_FORMAT)
+                            .formatted(-ev.soulDelta()));
+                  } else if (ev.goldDelta() < 0 && before.gold().amount() < -ev.goldDelta()) {
+                    showFlash(
+                        (jp
+                                ? Strings.Ja.SHOP_INSUFFICIENT_GOLD_FORMAT
+                                : Strings.En.SHOP_INSUFFICIENT_GOLD_FORMAT)
+                            .formatted(-ev.goldDelta()));
+                  }
+                }
+                boolean hasAffordableChoice = false;
+                for (LayerEndNode candidate : nodeChoice.choices()) {
+                  if (candidate.canAfford(before)) {
+                    hasAffordableChoice = true;
+                    break;
+                  }
+                }
+                if (hasAffordableChoice) {
+                  return;
+                }
                 showFlash(
-                    (jp
-                            ? Strings.Ja.SHOP_INSUFFICIENT_GOLD_FORMAT
-                            : Strings.En.SHOP_INSUFFICIENT_GOLD_FORMAT)
-                        .formatted(shop.goldCost()));
-              } else if (choice instanceof LayerEndNode.ShopEquipment se
-                  && before.gold().amount() < se.goldCost()) {
-                // Wave 3 Task B: 装備購入ノードでも同じ silent fail フラッシュを流用。
-                showFlash(
-                    (jp
-                            ? Strings.Ja.SHOP_INSUFFICIENT_GOLD_FORMAT
-                            : Strings.En.SHOP_INSUFFICIENT_GOLD_FORMAT)
-                        .formatted(se.goldCost()));
+                    jp
+                        ? Strings.Ja.LAYER_END_NO_AFFORDABLE_FLASH
+                        : Strings.En.LAYER_END_NO_AFFORDABLE_FLASH);
               }
+              game.resolveLayerEndChoice(choice);
               nodeChoice.dispose();
               nodeChoice = null;
             });
@@ -380,7 +449,7 @@ public final class DungeonScreen extends ScreenAdapter {
   }
 
   /** フラッシュメッセージを表示する (effects への委譲)。 */
-  private void showFlash(String message) {
+  void showFlash(String message) {
     effects.showFlash(message);
   }
 
@@ -533,6 +602,7 @@ public final class DungeonScreen extends ScreenAdapter {
         // §15-3 / §15-6: 強化個体撃破時にカード追加 UI を発火 (二重生成は EliteRewardOrchestrator 内で防止)
         // Wave 10 W10-β-2: 達成感演出のため LEVEL_UP 素材を Elite 撃破に流用 (新規 SeKind 追加せず KISS)
         game.soundManager().playSe(SeKind.LEVEL_UP);
+        playerInputs.reset();
         eliteReward.triggerOnEliteDefeat();
       } else if (e instanceof BattleEvent.TurnPhaseChanged tpc
           && tpc.newPhase() == TurnPhase.PLAYER_TURN) {
@@ -643,7 +713,7 @@ public final class DungeonScreen extends ScreenAdapter {
     camera.position.set(px, py - hudPanelHalfWorld, 0f);
     // §15-6 UI/UX: 端クランプ撤廃 — プレイヤー常に可視範囲中央、マップ外領域が見えても許容する設計。
     // ADR-19 整合: 注入済 rng を ScreenEffects 経由に渡す (同一シードでシェイク方向も再現可)。
-    if (effects.isShaking()) {
+    if (effects.isShaking() && (pauseMenu == null || !pauseMenu.isActive())) {
       camera.position.x += effects.currentShakeOffsetX(rng);
       camera.position.y += effects.currentShakeOffsetY(rng);
     }
@@ -671,6 +741,9 @@ public final class DungeonScreen extends ScreenAdapter {
     if (statusPopup != null) {
       statusPopup.resize(width, height);
     }
+    if (pauseMenu != null) {
+      pauseMenu.resize(width, height);
+    }
   }
 
   @Override
@@ -684,7 +757,12 @@ public final class DungeonScreen extends ScreenAdapter {
       nodeChoice.dispose();
       nodeChoice = null;
     }
-    eliteReward.dispose();
+    if (eliteReward != null) {
+      eliteReward.dispose();
+    }
+    if (pauseMenu != null) {
+      pauseMenu.dispose();
+    }
   }
 
   @Override
@@ -705,6 +783,10 @@ public final class DungeonScreen extends ScreenAdapter {
     }
     if (eliteReward != null) {
       eliteReward.dispose();
+    }
+    if (pauseMenu != null) {
+      pauseMenu.dispose();
+      pauseMenu = null;
     }
     if (wallTexture != null) {
       wallTexture.dispose();

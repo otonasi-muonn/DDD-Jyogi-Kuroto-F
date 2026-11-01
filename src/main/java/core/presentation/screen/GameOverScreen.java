@@ -89,20 +89,61 @@ public final class GameOverScreen extends ScreenAdapter {
     }
 
     large.setColor(Color.LIGHT_GRAY);
-    String soulLabel = jp ? Strings.Ja.SOULS_KEPT : Strings.En.SOULS_KEPT;
-    large.draw(
-        batch,
-        soulLabel + soulSnapshot,
-        RenderLayout.GAMEOVER_SOUL_X,
-        RenderLayout.GAMEOVER_SOUL_Y);
-
     hud.setColor(Color.GRAY);
-    hud.draw(
-        batch,
-        jp ? Strings.Ja.NEW_RUN_HINT : Strings.En.NEW_RUN_HINT,
-        RenderLayout.GAMEOVER_HINT_X,
-        RenderLayout.GAMEOVER_HINT_Y);
+    switch (runEndResult) {
+      case SETTLED, ALREADY_SETTLED -> {
+        String soulLabel = jp ? Strings.Ja.SOULS_KEPT : Strings.En.SOULS_KEPT;
+        large.draw(
+            batch,
+            soulLabel + soulSnapshot,
+            RenderLayout.GAMEOVER_SOUL_X,
+            RenderLayout.GAMEOVER_SOUL_Y);
+        hud.draw(
+            batch,
+            jp ? Strings.Ja.NEW_RUN_HINT : Strings.En.NEW_RUN_HINT,
+            RenderLayout.GAMEOVER_HINT_X,
+            RenderLayout.GAMEOVER_HINT_Y);
+      }
+      case SAVE_FAILED -> {
+        large.draw(
+            batch,
+            jp ? Strings.Ja.GAMEOVER_SAVE_FAILED_MESSAGE : Strings.En.GAMEOVER_SAVE_FAILED_MESSAGE,
+            RenderLayout.GAMEOVER_SOUL_X,
+            RenderLayout.GAMEOVER_SOUL_Y);
+        large.draw(
+            batch,
+            jp ? Strings.Ja.GAMEOVER_SAVE_FAILED_DETAIL : Strings.En.GAMEOVER_SAVE_FAILED_DETAIL,
+            RenderLayout.GAMEOVER_SOUL_X,
+            RenderLayout.GAMEOVER_SOUL_Y - RenderLayout.LARGE_LINE_HEIGHT);
+        hud.draw(
+            batch,
+            jp ? Strings.Ja.GAMEOVER_SAVE_FAILED_HINT : Strings.En.GAMEOVER_SAVE_FAILED_HINT,
+            RenderLayout.GAMEOVER_HINT_X,
+            RenderLayout.GAMEOVER_HINT_Y);
+      }
+      case INVALID_STATE -> {
+        large.draw(
+            batch,
+            jp
+                ? Strings.Ja.GAMEOVER_INVALID_STATE_MESSAGE
+                : Strings.En.GAMEOVER_INVALID_STATE_MESSAGE,
+            RenderLayout.GAMEOVER_SOUL_X,
+            RenderLayout.GAMEOVER_SOUL_Y);
+        hud.draw(
+            batch,
+            jp ? Strings.Ja.GAMEOVER_INVALID_STATE_HINT : Strings.En.GAMEOVER_INVALID_STATE_HINT,
+            RenderLayout.GAMEOVER_HINT_X,
+            RenderLayout.GAMEOVER_HINT_Y);
+      }
+    }
     batch.end();
+
+    if ((runEndResult == DddGame.RunEndResult.SAVE_FAILED
+            || runEndResult == DddGame.RunEndResult.INVALID_STATE)
+        && Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
+      Gdx.app.exit();
+      return;
+    }
 
     // Wave 14 W14-β: ENTER または左クリックでソウルツリーへ遷移 (マウスのみで操作可能)
     if (Gdx.input.isKeyJustPressed(Keys.ENTER) || Gdx.input.justTouched()) {

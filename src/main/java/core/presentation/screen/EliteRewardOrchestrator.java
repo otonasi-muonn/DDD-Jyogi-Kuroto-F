@@ -35,6 +35,9 @@ public final class EliteRewardOrchestrator implements Disposable {
   /** §15-3 / §15-6: 強化個体撃破時のカード追加 UI (1 ノード選択 = 1 枚 DrawPile 追加)。 */
   private NodeChoicePopup popup;
 
+  /** 開いた同一フレームの入力が報酬選択に流用されるのを防ぐガードフラグ。 */
+  private boolean openedThisFrame;
+
   /**
    * @param game DddGame (カードマスタ取得 / 報酬適用 / フォント)
    * @param rng 乱数源 (ADR-19: 注入済みインスタンスを使い、同一シードで再現可能にする)
@@ -58,41 +61,47 @@ public final class EliteRewardOrchestrator implements Disposable {
   public void triggerOnEliteDefeat() {
     if (popup == null) {
       popup = createEliteCardChoicePopup();
+      openedThisFrame = true;
     }
   }
 
   /**
    * 毎フレームの入力処理。1〜3 数字キーで選択 → {@link DddGame#applyEliteCardReward} 呼出 + flash 通知 → popup dispose。
    *
-   * <p>popup が null (非アクティブ) の場合は即時 return する。
+   * <p>popup が null (非アクティブ) の場合、または開いたばかりのフレームでは何もせず false を返す。
+   *
+   * @return 報酬を選択して popup を閉じたフレームのみ true
    */
-  public void handleInput() {
+  public boolean handleInput() {
     if (popup == null) {
-      return;
+      return false;
+    }
+    if (openedThisFrame) {
+      openedThisFrame = false;
+      return false;
     }
     for (int i = 0; i < NodeChoicePopup.CHOICE_COUNT; i++) {
       if (Gdx.input.isKeyJustPressed(numKey(i))) {
         popup.select(i);
       }
     }
-    popup
-        .consume()
-        .ifPresent(
-            choice -> {
-              game.applyEliteCardReward(choice);
-              popup.dispose();
-              popup = null;
-              if (choice instanceof LayerEndNode.Shop shop) {
-                boolean jp = game.fonts().isJapaneseAvailable();
-                // Wave 3 Task A: Shop は CardId 保持なので cardCatalog 経由で displayName を解決
-                String cardName = game.cardCatalog().get(shop.cardId()).displayName();
-                effects.showFlash(
-                    (jp
-                            ? Strings.Ja.CARD_REWARD_GAINED_FORMAT
-                            : Strings.En.CARD_REWARD_GAINED_FORMAT)
-                        .formatted(cardName));
-              }
-            });
+    var chosen = popup.consume();
+    if (chosen.isEmpty()) {
+      return false;
+    }
+    LayerEndNode choice = chosen.get();
+    game.applyEliteCardReward(choice);
+    popup.dispose();
+    popup = null;
+    if (choice instanceof LayerEndNode.Shop shop) {
+      boolean jp = game.fonts().isJapaneseAvailable();
+      // Wave 3 Task A: Shop は CardId 保持なので cardCatalog 経由で displayName を解決
+      String cardName = game.cardCatalog().get(shop.cardId()).displayName();
+      effects.showFlash(
+          (jp ? Strings.Ja.CARD_REWARD_GAINED_FORMAT : Strings.En.CARD_REWARD_GAINED_FORMAT)
+              .formatted(cardName));
+    }
+    return true;
   }
 
   /** popup が表示中 (非 null) なら true。 */
@@ -114,6 +123,7 @@ public final class EliteRewardOrchestrator implements Disposable {
   /** popup を dispose して null 化する。{@link Disposable#dispose()} 準拠。 すでに null の場合は no-op。 */
   @Override
   public void dispose() {
+    openedThisFrame = false;
     if (popup != null) {
       popup.dispose();
       popup = null;

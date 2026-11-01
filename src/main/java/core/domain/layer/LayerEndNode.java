@@ -41,6 +41,17 @@ public sealed interface LayerEndNode
   Player apply(Player player, NodeResolveContext context);
 
   /**
+   * 指定された Player がこのノードのコストを支払えるかを返す。
+   *
+   * @param player 判定対象の Player
+   * @return 支払い可能 (またはコストなし) なら true
+   */
+  default boolean canAfford(Player player) {
+    Objects.requireNonNull(player, "player");
+    return true;
+  }
+
+  /**
    * 最大 HP を {@code amount} 加算する。現在 HP も同量加算し「上限上昇分が即座に空きスロットを埋める」体験にする (Slay the Spire の永続バフと同型)。
    *
    * <p>amount は 1 以上 (0 や負数は「強化」として無意味)。
@@ -118,9 +129,15 @@ public sealed interface LayerEndNode
     }
 
     @Override
+    public boolean canAfford(Player player) {
+      Objects.requireNonNull(player, "player");
+      return player.gold().amount() >= goldCost;
+    }
+
+    @Override
     public Player apply(Player player, NodeResolveContext context) {
       Objects.requireNonNull(context, "context");
-      if (player.gold().amount() < goldCost) {
+      if (!canAfford(player)) {
         return player; // silent fail
       }
       Card granted = context.cards().apply(cardId);
@@ -179,13 +196,22 @@ public sealed interface LayerEndNode
     }
 
     @Override
+    public boolean canAfford(Player player) {
+      Objects.requireNonNull(player, "player");
+      if (soulDelta < 0 && player.soul().amount() < -soulDelta) {
+        return false;
+      }
+      if (goldDelta < 0 && player.gold().amount() < -goldDelta) {
+        return false;
+      }
+      return true;
+    }
+
+    @Override
     public Player apply(Player player, NodeResolveContext context) {
       // context は未使用 (signature 追従のみ)。
       // §UI 改善 Wave 3 Task C: ソウル/金貨が不足する負値 delta は silent fail (player そのまま返す)。
-      if (soulDelta < 0 && player.soul().amount() < -soulDelta) {
-        return player;
-      }
-      if (goldDelta < 0 && player.gold().amount() < -goldDelta) {
+      if (!canAfford(player)) {
         return player;
       }
       Player after = player;
@@ -229,9 +255,15 @@ public sealed interface LayerEndNode
     }
 
     @Override
+    public boolean canAfford(Player player) {
+      Objects.requireNonNull(player, "player");
+      return player.gold().amount() >= goldCost;
+    }
+
+    @Override
     public Player apply(Player player, NodeResolveContext context) {
       Objects.requireNonNull(context, "context");
-      if (player.gold().amount() < goldCost) {
+      if (!canAfford(player)) {
         return player; // silent fail
       }
       // 装着 (loadout 反映) は presentation 層の責務。ここでは Gold 消費のみで純関数性を維持する。

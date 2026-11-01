@@ -33,9 +33,11 @@ import core.infrastructure.save.RunCheckpointMapper;
 import core.infrastructure.save.RunLifecycle;
 import core.infrastructure.save.SaveData;
 import core.infrastructure.save.SaveDataConverter;
+import core.infrastructure.save.SaveManager;
 import core.infrastructure.save.Settings;
 import core.presentation.render.Fonts;
 import core.presentation.render.GameResources;
+import core.presentation.render.Strings;
 import core.presentation.render.UiTheme;
 import core.presentation.render.UiThemeResolver;
 import java.util.HashMap;
@@ -407,6 +409,44 @@ public final class DddGame extends Game {
     return true;
   }
 
+  /**
+   * 来場者交代用にセーブデータ (恒久進捗・進行中ラン) をすべて削除し、初期状態へ戻す。
+   *
+   * <p>{@code settings.json} (音量・フルスクリーン・UI プリセット・テーマ) は展示機材の設定として残す。
+   * 全消去のため精算・ソウル移行は行わない。削除に失敗した場合はメモリ上の {@code progress} / {@code runSession} を変更せず false を返す。
+   *
+   * @return 初期化に成功した場合 true
+   */
+  public boolean resetAllProgress() {
+    SaveManager.SaveResult result = persistence.runLifecycle().deleteAllProgress();
+    if (!result.isSuccess()) {
+      LOG.severe("セーブデータの初期化に失敗しました: " + result.message());
+      return false;
+    }
+    runSession = Optional.empty();
+    progress =
+        ProfileDataMapper.toPlayerProgress(
+            persistence.runLifecycle().profileOrInitial(), defaultLoadout());
+    return true;
+  }
+
+  /**
+   * ダンジョン内の一時停止メニューからランを中断してタイトルへ戻る際に呼ぶ。
+   *
+   * <p>ファイルの書込・削除は一切行わず、メモリ上の {@code runSession} を破棄し、{@code progress} を {@link #create()}
+   * と同じ方法でディスクの {@code profile.json} から読み直す。
+   *
+   * <p>理由: ラン開始時に {@code progress.playerSoul} は 0 にされて {@code Player} 側へ移っている。{@code RunSession}
+   * だけ捨ててメモリの {@code progress} を使い続けると、次の新規ランで持越しソウル 0 のまま Profile
+   * を上書きしてソウルを失う。ディスクから読み直せば「ゲームを再起動したのと同じ状態」になり、層境界セーブがあればタイトルの [L] つづきから で直前の層の始めから再開できる。
+   */
+  public void suspendRunToTitle() {
+    runSession = Optional.empty();
+    progress =
+        ProfileDataMapper.toPlayerProgress(
+            persistence.runLifecycle().profileOrInitial(), defaultLoadout());
+  }
+
   /** 新しいラン (= ダンジョン挑戦) を開始する。RunSession を作り直す。 */
   public void startNewRun() {
     // ADR-19: Random は引数注入で再現性を呼出元に委ねる (初期手札シャッフル + 毎ターンドロー)。
@@ -654,6 +694,14 @@ public final class DddGame extends Game {
     ProfileData profile = ProfileDataMapper.forLayerBoundary(progress, previous);
     if (!lifecycle.saveAtLayerBoundary(profile, checkpoint).isSuccess()) {
       LOG.severe("層境界セーブに失敗しました。次の層境界で再試行します。");
+      if (getScreen() instanceof DungeonScreen dungeonScreen) {
+        boolean jp =
+            resources == null
+                || resources.fonts() == null
+                || resources.fonts().isJapaneseAvailable();
+        dungeonScreen.showFlash(
+            jp ? Strings.Ja.LAYER_SAVE_FAILED_FLASH : Strings.En.LAYER_SAVE_FAILED_FLASH);
+      }
     }
   }
 

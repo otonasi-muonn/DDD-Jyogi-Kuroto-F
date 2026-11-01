@@ -62,13 +62,15 @@ class LayerEndNodeLabelsTest {
   @Test
   void restJa() {
     assertEquals(
-        "HP 全回復", LayerEndNodeLabels.labelOf(new LayerEndNode.Rest(), fullContext(), true));
+        "HP を最大値の 1/3 回復",
+        LayerEndNodeLabels.labelOf(new LayerEndNode.Rest(), fullContext(), true));
   }
 
   @Test
   void restEn() {
     assertEquals(
-        "Full HP heal", LayerEndNodeLabels.labelOf(new LayerEndNode.Rest(), fullContext(), false));
+        "Heal 1/3 of max HP",
+        LayerEndNodeLabels.labelOf(new LayerEndNode.Rest(), fullContext(), false));
   }
 
   // ---------------- Shop ----------------

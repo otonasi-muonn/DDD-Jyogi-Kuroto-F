@@ -30,7 +30,7 @@ public final class Strings {
     public static final String HUD_SOUL = "ソウル";
     public static final String HUD_PHASE = "フェーズ";
     public static final String HUD_SPEED = "速度";
-    public static final String HUD_HINT = "Tab: ステータス   ENTER: ターン終了";
+    public static final String HUD_HINT = "Tab: ステータス   ENTER: ターン終了   ESC: メニュー";
 
     // 移動権保持中の操作ヒント (ADR-21 §15-5)
     public static final String MOVE_TOKEN_HINT = "移動権保持中: WASD/矢印で移動   ENTER で終了";
@@ -45,6 +45,12 @@ public final class Strings {
     public static final String RUN_CLEARED_HEADER = "ダンジョン制覇";
     public static final String SOULS_KEPT = "持ち帰ったソウル: ";
     public static final String NEW_RUN_HINT = "ENTER でソウルツリーへ";
+    public static final String GAMEOVER_SAVE_FAILED_MESSAGE = "保存に失敗しました。まだ記録されていません";
+    public static final String GAMEOVER_SAVE_FAILED_DETAIL = "空き容量や書き込み権限を確認してください";
+    public static final String GAMEOVER_SAVE_FAILED_HINT = "ENTER: 再試行   ESC: 保存せずに終了";
+    public static final String GAMEOVER_INVALID_STATE_MESSAGE =
+        "データの整合性エラーのため精算を中止しました。保存データは変更していません";
+    public static final String GAMEOVER_INVALID_STATE_HINT = "ESC: 終了";
 
     // CLEARED 状態 (階段踏破直後) の操作ヒント (§15-6 / §15-8 / E-6)。
     // ポップアップが前面に出るが、HUD ヒント領域にも同等情報を残して二重視認性を確保。
@@ -54,7 +60,7 @@ public final class Strings {
     public static final String LAYER_END_TITLE = "層末ノード — 1 つ選んでください";
 
     // 手札表示ラベル
-    public static final String HAND_HINT = "数字キー: カード選択  方向キー: 使用方向  ESC: キャンセル";
+    public static final String HAND_HINT = "数字キー/クリック: 選択  WASD/矢印/マップクリック: 方向  ESC: キャンセル";
     public static final String CARD_ELEMENT_PHYSICAL = "物";
     public static final String CARD_ELEMENT_MAGICAL = "魔";
 
@@ -91,7 +97,7 @@ public final class Strings {
     public static final String STATUS_MAGICAL_ATTACK = "魔攻";
     public static final String STATUS_PHYSICAL_DEFENSE = "物防";
     public static final String STATUS_MAGICAL_DEFENSE = "魔防";
-    public static final String STATUS_HINT = "[Tab] 閉じる";
+    public static final String STATUS_HINT = "[Tab / ESC] 閉じる";
     public static final String STATUS_EQUIPMENT_HEADER = "── 装備 ──";
     public static final String STATUS_EQUIP_NONE = "(なし)";
     public static final String EQUIP_SLOT_FEET = "足";
@@ -136,7 +142,7 @@ public final class Strings {
     // §15-8 W8-α: LayerEndNode のラベル (旧 domain 層 displayName を presentation に分離)
     public static final String LAYER_END_HP_MAX_UP_FORMAT = "HP +%d";
     public static final String LAYER_END_SPEED_UP_FORMAT = "速度 +%d";
-    public static final String LAYER_END_REST = "HP 全回復";
+    public static final String LAYER_END_REST = "HP を最大値の 1/3 回復";
     public static final String LAYER_END_SHOP_FORMAT = "ショップ: %s (金貨 %d)";
     public static final String LAYER_END_SHOP_EQUIPMENT_FORMAT = "装備購入: %s (金貨 %d)";
     public static final String EVENT_HEALING_SPRING = "治療の泉 (HP +20 / ソウル -10)";
@@ -162,30 +168,30 @@ public final class Strings {
     // SAVE-03B: 進行中ランがある状態で新規開始しようとしたときの確認。
     public static final String ABANDON_RUN_TITLE = "進行中の冒険があります";
     public static final String ABANDON_RUN_BODY =
-        "新しく始めると進行中の冒険を放棄します。放棄した冒険は死亡と同じ扱いになります。" + "続きから再開する場合は [L] を押してください。";
+        "新しく始めると進行中の冒険を放棄します。放棄した冒険は死亡と同じ扱いになります。" + "続きから再開する場合は [N] / [ESC] で戻ってから [L] を押してください。";
     public static final String ABANDON_RUN_HINT = "[Y] 放棄して新規開始   [N] / [ESC] やめる";
 
     // §15-10 / E-10 チュートリアル
     public static final String TUTORIAL_TITLE = "操作説明";
     public static final String TUTORIAL_BODY =
         """
-        【移動】 WASD / 矢印キー / マップクリック で 1 マス移動 (1 AP 消費)
+        【目的】 階段を踏むと層末ノード (3 択) を選んで次の層へ進みます。
+          最終層 (標準 3 層) のボスを倒すとクリア! 倒れても獲得ソウルは
+          持ち帰れ、タイトルの [T] ソウルツリーで強化できます (1 周目後解禁)。
 
-        【カード使用】
-          1. 数字キー (1-9) or 手札クリック でカード選択
-          2. 矢印キー / マップクリック で発射方向を指定 → カード使用
-          ESC で選択キャンセル、同じ数字キーで選択解除
+        【AP (行動力)】 1 ターンに使える行動力 (右上に表示)。毎ターン開始時に
+          速度と同じ量まで回復します (持ち越し不可。最初のターンだけ 5)。
+          移動 1・待機 1・カードは左上の数字ぶん消費し、0 で自動ターン終了。
 
-        【移動カード】 ダッシュ等は AP 消費で「移動権」を貯め、
-                       その後 WASD / マップクリックで 1 マスずつ進む
-
+        【移動】 WASD / 矢印キー / マップクリック で 1 マス移動 (AP 1 消費)
+          ダッシュ等の移動カードは「移動権」を得て 1 マスずつ進みます。
+        【カード使用】 1. 数字キー (1-9) または手札クリックでカードを選択
+          2. WASD / 矢印キー / マップクリックで方向を指定して発動 (ESC で解除)
         【待機】 SPACE でその場に留まる (AP 1 消費)
-
         【ターン終了】 ENTER / 画面右下「ターン終了」ボタン
-
-        階段 (黄色) に到達で次層へ。敵撃破でソウル + 金貨獲得。
-        層末でステ強化 / ショップ / 休憩 / イベント を選択。""";
-    public static final String TUTORIAL_CLOSE_HINT = "ENTER / ESC / クリック で閉じる";
+        【メニュー】 ESC で一時停止メニュー (設定・操作説明・タイトルへ戻る)""";
+    public static final String TUTORIAL_CLOSE_HINT =
+        "ENTER / ESC / クリック で閉じる (ESC メニューからいつでも見られます)";
 
     // §15-1 / §15-8 設定画面
     public static final String SETTINGS_TITLE = "設定";
@@ -199,8 +205,34 @@ public final class Strings {
     public static final String SETTINGS_THEME_DARK = "ダーク";
     public static final String SETTINGS_ON = "ON";
     public static final String SETTINGS_OFF = "OFF";
-    public static final String SETTINGS_HINT = "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ESC: 戻る";
+    public static final String SETTINGS_RESET_SAVE = "セーブデータを初期化";
+    public static final String SETTINGS_RESET_SAVE_VALUE = "ENTER で実行";
+    public static final String SETTINGS_HINT = "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ENTER: 実行   ESC: 戻る";
     public static final String TITLE_OPEN_SETTINGS_HINT = "[S] 設定";
+
+    // 来場者交代用セーブデータ初期化の確認ダイアログ
+    public static final String RESET_SAVE_CONFIRM_TITLE = "セーブデータを初期化しますか?";
+    public static final String RESET_SAVE_CONFIRM_BODY =
+        "ソウル・ソウルツリー・図鑑・装備・周回数・進行中の冒険をすべて削除し、はじめての状態に戻します。" + "音量などの設定は残ります。この操作は取り消せません。";
+    public static final String RESET_SAVE_CONFIRM_HINT = "[Y] 初期化する   [N] / [ESC] やめる";
+    public static final String RESET_SAVE_FAILED_MESSAGE = "セーブデータの初期化に失敗しました (ファイルを削除できませんでした)";
+
+    // ダンジョン内 ESC 一時停止メニュー
+    public static final String PAUSE_TITLE = "一時停止";
+    public static final String PAUSE_ITEM_RESUME = "1. ゲームに戻る";
+    public static final String PAUSE_ITEM_SETTINGS = "2. 設定";
+    public static final String PAUSE_ITEM_TUTORIAL = "3. 操作説明";
+    public static final String PAUSE_ITEM_RETURN_TITLE = "4. タイトルへ戻る";
+    public static final String PAUSE_ITEM_RESET_SAVE = "5. セーブを初期化 (来場者交代)";
+    public static final String PAUSE_HINT = "↑↓ / WS: 選択   ENTER / SPACE / 1〜5 / クリック: 決定";
+    public static final String PAUSE_HINT_LINE2 = "ESC: ゲームに戻る";
+    public static final String PAUSE_SETTINGS_HINT = "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ESC: メニューへ戻る";
+
+    // 一時停止メニュー「タイトルへ戻る」確認ダイアログ
+    public static final String RETURN_TITLE_CONFIRM_TITLE = "タイトルへ戻りますか?";
+    public static final String RETURN_TITLE_CONFIRM_BODY =
+        "この層での進行は失われます。\n2 層目以降なら、タイトルの [L] つづきから で直前の層の始めから再開できます。";
+    public static final String RETURN_TITLE_CONFIRM_HINT = "[Y] タイトルへ   [N] / [ESC] やめる";
 
     // §15-1 初回 UI プリセット選択
     public static final String FIRST_RUN_PRESET_TITLE = "UI プリセットを選択してください";
@@ -221,6 +253,9 @@ public final class Strings {
 
     // §UI 改善 (Wave 1 Task 4): ソウルツリー以外の通知/フラッシュメッセージ i18n
     public static final String SHOP_INSUFFICIENT_GOLD_FORMAT = "金貨が足りません (必要 %d)";
+    public static final String EVENT_INSUFFICIENT_SOUL_FORMAT = "ソウルが足りません (必要 %d)";
+    public static final String LAYER_END_NO_AFFORDABLE_FLASH = "支払える選択肢がないため、何も得ずに次の層へ進みます";
+    public static final String LAYER_SAVE_FAILED_FLASH = "保存に失敗しました（進行は続行できます）";
     public static final String CARD_REWARD_GAINED_FORMAT = "カード獲得: %s";
     public static final String ELITE_CARD_REWARD_TITLE = "強化個体撃破: カード追加";
     public static final String SOUL_TREE_UNLOCKED_FORMAT = "解放: %s";
@@ -253,7 +288,7 @@ public final class Strings {
     public static final String HUD_SOUL = "Soul";
     public static final String HUD_PHASE = "Phase";
     public static final String HUD_SPEED = "Speed";
-    public static final String HUD_HINT = "Tab: Status   ENTER: End Turn";
+    public static final String HUD_HINT = "Tab: Status   ENTER: End Turn   ESC: Menu";
 
     // Move token hint during movement mode (ADR-21 §15-5)
     public static final String MOVE_TOKEN_HINT =
@@ -269,6 +304,15 @@ public final class Strings {
     public static final String RUN_CLEARED_HEADER = "DUNGEON CLEARED";
     public static final String SOULS_KEPT = "Souls carried out: ";
     public static final String NEW_RUN_HINT = "Press ENTER to open the Soul Tree";
+    public static final String GAMEOVER_SAVE_FAILED_MESSAGE =
+        "Save failed. Progress has not been recorded yet.";
+    public static final String GAMEOVER_SAVE_FAILED_DETAIL =
+        "Please check free disk space and write permissions.";
+    public static final String GAMEOVER_SAVE_FAILED_HINT =
+        "ENTER: Retry   ESC: Exit without saving";
+    public static final String GAMEOVER_INVALID_STATE_MESSAGE =
+        "Settlement aborted due to a data integrity error. Saved data was not modified.";
+    public static final String GAMEOVER_INVALID_STATE_HINT = "ESC: Exit";
 
     // Hint shown after stepping on stairs (§15-6 / §15-8 / E-6).
     // Popup overlays the screen; HUD hint area also shows the same info for redundancy.
@@ -278,7 +322,8 @@ public final class Strings {
     public static final String LAYER_END_TITLE = "Layer-end node — choose one";
 
     // 手札表示ラベル
-    public static final String HAND_HINT = "Number: select card  Arrow: direction  ESC: cancel";
+    public static final String HAND_HINT =
+        "Number/Click: select  WASD/Arrow/Click: direction  ESC: cancel";
     public static final String CARD_ELEMENT_PHYSICAL = "Physical";
     public static final String CARD_ELEMENT_MAGICAL = "Magical";
 
@@ -315,7 +360,7 @@ public final class Strings {
     public static final String STATUS_MAGICAL_ATTACK = "Mag Atk";
     public static final String STATUS_PHYSICAL_DEFENSE = "Phys Def";
     public static final String STATUS_MAGICAL_DEFENSE = "Mag Def";
-    public static final String STATUS_HINT = "[Tab] Close";
+    public static final String STATUS_HINT = "[Tab / ESC] Close";
     public static final String STATUS_EQUIPMENT_HEADER = "-- Equipment --";
     public static final String STATUS_EQUIP_NONE = "(none)";
     public static final String EQUIP_SLOT_FEET = "Feet";
@@ -362,7 +407,7 @@ public final class Strings {
     // §15-8 W8-α: LayerEndNode labels (split from domain layer displayName)
     public static final String LAYER_END_HP_MAX_UP_FORMAT = "HP +%d";
     public static final String LAYER_END_SPEED_UP_FORMAT = "Speed +%d";
-    public static final String LAYER_END_REST = "Full HP heal";
+    public static final String LAYER_END_REST = "Heal 1/3 of max HP";
     public static final String LAYER_END_SHOP_FORMAT = "Shop: %s (Gold %d)";
     public static final String LAYER_END_SHOP_EQUIPMENT_FORMAT = "Equip: %s (Gold %d)";
     public static final String EVENT_HEALING_SPRING = "Healing Spring (HP +20 / Soul -10)";
@@ -389,31 +434,30 @@ public final class Strings {
     public static final String ABANDON_RUN_TITLE = "A run is still in progress";
     public static final String ABANDON_RUN_BODY =
         "Starting fresh abandons the run in progress. An abandoned run is settled as a death. "
-            + "Press [L] instead to resume it.";
+            + "Press [N] / [ESC] to go back, then press [L] to resume it.";
     public static final String ABANDON_RUN_HINT = "[Y] Abandon and start   [N] / [ESC] Cancel";
 
     // §15-10 / E-10 Tutorial
     public static final String TUTORIAL_TITLE = "How to Play";
     public static final String TUTORIAL_BODY =
         """
-        [Move] WASD / Arrows / Click map  - Move 1 tile (1 AP)
+        [Goal] Step on the stairs to pick a layer-end node (3 choices) and descend.
+          Defeat the final floor boss (default 3 floors) to clear the dungeon!
+          Earned Soul is kept on death for the [T] Soul Tree (after 1st run).
 
-        [Use a Card]
-          1. Press 1-9 or click a card to select
-          2. Press an arrow key or click map to fire
-          ESC to cancel, same number key to deselect
+        [AP] Action Points, shown top-right. At the start of each turn
+          they refill to your Speed (no carry-over; the very first turn starts at 5).
+          Move: 1, Wait: 1, Cards: top-left cost. Turn ends automatically at 0 AP.
 
-        [Movement Cards] Dash etc. spend AP to grant move tokens,
-                          then WASD / map click moves 1 tile each
-
+        [Move] WASD / Arrows / Click map to move 1 tile (costs 1 AP).
+          Movement cards (Dash, etc.) grant move tokens to step 1 tile each.
+        [Use a Card] 1. Press 1-9 or click a card in hand to select
+          2. Press WASD / Arrows or click map to aim and fire (ESC to cancel)
         [Wait] SPACE to stay in place (costs 1 AP)
-
         [End Turn] ENTER / "End Turn" button (bottom right)
-
-        Reach the yellow stairs to descend.
-        Defeat enemies to earn Soul + Gold.
-        Pick a node at layer end: stat / shop / rest / event.""";
-    public static final String TUTORIAL_CLOSE_HINT = "ENTER / ESC / Click to close";
+        [Menu] ESC to open Pause Menu (Settings / Help / Return to Title)""";
+    public static final String TUTORIAL_CLOSE_HINT =
+        "ENTER / ESC / Click to close (View anytime from the ESC menu)";
 
     // §15-1 / §15-8 Settings screen
     public static final String SETTINGS_TITLE = "Settings";
@@ -427,9 +471,41 @@ public final class Strings {
     public static final String SETTINGS_THEME_DARK = "Dark";
     public static final String SETTINGS_ON = "ON";
     public static final String SETTINGS_OFF = "OFF";
+    public static final String SETTINGS_RESET_SAVE = "Reset Save Data";
+    public static final String SETTINGS_RESET_SAVE_VALUE = "Press ENTER";
     public static final String SETTINGS_HINT =
-        "Up/Down / WS: navigate   Left/Right / AD: change value   ESC: back";
+        "Up/Down / WS: navigate   Left/Right / AD: change value   ENTER: execute   ESC: back";
     public static final String TITLE_OPEN_SETTINGS_HINT = "[S] Settings";
+
+    // Visitor handoff save reset confirmation dialog
+    public static final String RESET_SAVE_CONFIRM_TITLE = "Reset all save data?";
+    public static final String RESET_SAVE_CONFIRM_BODY =
+        "This will delete all Soul, Soul Tree progress, collections, equipment, run count, "
+            + "and active runs. Audio and display settings will be kept. This cannot be undone.";
+    public static final String RESET_SAVE_CONFIRM_HINT = "[Y] Reset all   [N] / [ESC] Cancel";
+    public static final String RESET_SAVE_FAILED_MESSAGE =
+        "Failed to reset save data (could not delete save files)";
+
+    // Dungeon ESC pause menu
+    public static final String PAUSE_TITLE = "PAUSED";
+    public static final String PAUSE_ITEM_RESUME = "1. Resume";
+    public static final String PAUSE_ITEM_SETTINGS = "2. Settings";
+    public static final String PAUSE_ITEM_TUTORIAL = "3. How to Play";
+    public static final String PAUSE_ITEM_RETURN_TITLE = "4. Return to Title";
+    public static final String PAUSE_ITEM_RESET_SAVE = "5. Reset Save Data";
+    public static final String PAUSE_HINT =
+        "Up/Down / WS: select   ENTER / SPACE / 1-5 / Click: confirm";
+    public static final String PAUSE_HINT_LINE2 = "ESC: resume";
+    public static final String PAUSE_SETTINGS_HINT =
+        "Up/Down / WS: navigate   Left/Right / AD: change value   ESC: back to menu";
+
+    // Pause menu "Return to Title" confirmation dialog
+    public static final String RETURN_TITLE_CONFIRM_TITLE = "Return to title?";
+    public static final String RETURN_TITLE_CONFIRM_BODY =
+        "Progress on the current floor will be lost. From floor 2 onward, "
+            + "you can resume from the start of the floor via [L] Continue on the title screen.";
+    public static final String RETURN_TITLE_CONFIRM_HINT =
+        "[Y] Return to title   [N] / [ESC] Cancel";
 
     // §15-1 First-run UI preset selection
     public static final String FIRST_RUN_PRESET_TITLE = "Choose a UI preset";
@@ -450,6 +526,10 @@ public final class Strings {
 
     // §UI improvement (Wave 1 Task 4): Non-SoulTree notification / flash i18n
     public static final String SHOP_INSUFFICIENT_GOLD_FORMAT = "Not enough gold (need %d)";
+    public static final String EVENT_INSUFFICIENT_SOUL_FORMAT = "Not enough soul (need %d)";
+    public static final String LAYER_END_NO_AFFORDABLE_FLASH =
+        "Nothing affordable - moving on to the next floor with no reward";
+    public static final String LAYER_SAVE_FAILED_FLASH = "Save failed (you can continue playing)";
     public static final String CARD_REWARD_GAINED_FORMAT = "Card gained: %s";
     public static final String ELITE_CARD_REWARD_TITLE = "Elite defeated: Card reward";
     public static final String SOUL_TREE_UNLOCKED_FORMAT = "Unlocked: %s";

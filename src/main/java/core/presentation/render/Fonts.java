@@ -76,7 +76,8 @@ public final class Fonts implements Disposable {
           // Strings.java の Javadoc / 内部コメント / 動的文字列で登場する可能性のある文字 (network covering)
           + "保側偽判剰同名囲国域報増後性情態料断権版直真知符等範線言足通過適配閉際領"
           // 記号 (一部 ASCII にないもの)。— (em dash) と 〜 (波ダッシュ) は LAYER_END_TITLE / HAND_HINT で使用。
-          + "→←↑↓・×÷±％—〜";
+          + "→←↑↓・×÷±％—〜"
+          + "■件位元削在境外央寄対小常廃引張払拡描時有枠標準現理界着示程継表象部";
 
   /** ASCII + 数字 + 記号 (FreeType デフォルト相当)。 */
   private static final String ASCII_CHARS =
