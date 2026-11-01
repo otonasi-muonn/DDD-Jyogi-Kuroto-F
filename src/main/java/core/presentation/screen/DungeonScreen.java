@@ -225,7 +225,8 @@ public final class DungeonScreen extends ScreenAdapter {
             && nodeChoice == null
             && !eliteReward.isActive()
             && game.requireRunSession().context().state().phase() == TurnPhase.PLAYER_TURN
-            && playerInputs.pendingCardIndex() >= 0;
+            && playerInputs.pendingCardIndex() >= 0
+            && game.requireRunSession().context().state().player().pendingMoveCount() == 0;
 
     if (!wasStatusPanelOpen
         && !canCancelCardSelection
@@ -712,7 +713,7 @@ public final class DungeonScreen extends ScreenAdapter {
     camera.position.set(px, py - hudPanelHalfWorld, 0f);
     // §15-6 UI/UX: 端クランプ撤廃 — プレイヤー常に可視範囲中央、マップ外領域が見えても許容する設計。
     // ADR-19 整合: 注入済 rng を ScreenEffects 経由に渡す (同一シードでシェイク方向も再現可)。
-    if (effects.isShaking()) {
+    if (effects.isShaking() && (pauseMenu == null || !pauseMenu.isActive())) {
       camera.position.x += effects.currentShakeOffsetX(rng);
       camera.position.y += effects.currentShakeOffsetY(rng);
     }

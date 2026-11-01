@@ -38,7 +38,7 @@ class NodeIconPathResolverTest {
   }
 
   @Test
-  void resolve_layerExtendEffectFallsBackToCenter() {
+  void resolve_layerExtendEffectUsesLayerExtendIcon() {
     String path = NodeIconPathResolver.resolve(new NodeEffect.LayerExtendEffect(1));
     assertEquals("icons/layer_extend.png", path, "LayerExtend → layer_extend.png");
   }
