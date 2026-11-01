@@ -134,4 +134,9 @@ public final class RunLifecycle {
   public ProfileData profileOrInitial() {
     return saveManager.loadProfile().orElseGet(ProfileData::initial);
   }
+
+  /** 来場者交代用に進行データ一式を削除する ({@code settings.json} は残す)。 */
+  public SaveManager.SaveResult deleteAllProgress() {
+    return saveManager.deleteAllProgress();
+  }
 }

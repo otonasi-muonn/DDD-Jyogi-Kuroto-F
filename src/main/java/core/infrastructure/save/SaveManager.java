@@ -259,6 +259,47 @@ public final class SaveManager {
     deleteQuietly(checkpointFile());
   }
 
+  /**
+   * 来場者交代用に進行データ一式を削除する ({@code settings.json} は残す)。
+   *
+   * <p>明示的な初期化操作のため、破損ファイルや未来 {@code schemaVersion} のファイルも削除する。
+   *
+   * @return 全対象ファイルが存在しない状態になれば {@link SaveResult#ok()}、1 件でも残れば {@link SaveResult#failure(String)}
+   */
+  public SaveResult deleteAllProgress() {
+    File dir = saveFile.getParentFile();
+    java.util.Set<File> targets = new java.util.LinkedHashSet<>();
+    targets.add(profileFile());
+    targets.add(checkpointFile());
+    targets.add(saveFile);
+    targets.add(new File(dir, SAVE_FILE_NAME));
+    targets.add(new File(dir, LegacySaveMigrator.LEGACY_BACKUP_FILE_NAME));
+    targets.add(migrationStateFile());
+    targets.add(new File(dir, PROFILE_FILE_NAME + ".bak"));
+    targets.add(new File(dir, CHECKPOINT_FILE_NAME + ".bak"));
+    targets.add(new File(dir, SAVE_FILE_NAME + ".bak"));
+    targets.add(new File(dir, saveFile.getName() + ".bak"));
+    targets.add(new File(dir, MIGRATION_STATE_FILE_NAME + ".bak"));
+
+    java.util.List<String> remaining = new java.util.ArrayList<>();
+    for (File target : targets) {
+      if (target.exists()) {
+        boolean deleted = target.delete();
+        if (!deleted || target.exists()) {
+          LOG.severe("Failed to delete progress file: " + target.getAbsolutePath());
+          remaining.add(target.getName());
+        } else {
+          LOG.info("Deleted progress file: " + target.getAbsolutePath());
+        }
+      }
+    }
+    if (!remaining.isEmpty()) {
+      return SaveResult.failure(
+          "Failed to delete progress files: " + String.join(", ", remaining));
+    }
+    return SaveResult.ok();
+  }
+
   /** 旧 {@code save.json} のパス。移行 (SAVE-02B) がハッシュ計算に使う。 */
   File legacySaveFile() {
     return saveFile;

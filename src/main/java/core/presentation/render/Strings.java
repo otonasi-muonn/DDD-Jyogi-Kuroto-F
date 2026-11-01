@@ -205,8 +205,20 @@ public final class Strings {
     public static final String SETTINGS_THEME_DARK = "ダーク";
     public static final String SETTINGS_ON = "ON";
     public static final String SETTINGS_OFF = "OFF";
-    public static final String SETTINGS_HINT = "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ESC: 戻る";
+    public static final String SETTINGS_RESET_SAVE = "セーブデータを初期化";
+    public static final String SETTINGS_RESET_SAVE_VALUE = "ENTER で実行";
+    public static final String SETTINGS_HINT =
+        "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ENTER: 実行   ESC: 戻る";
     public static final String TITLE_OPEN_SETTINGS_HINT = "[S] 設定";
+
+    // 来場者交代用セーブデータ初期化の確認ダイアログ
+    public static final String RESET_SAVE_CONFIRM_TITLE = "セーブデータを初期化しますか?";
+    public static final String RESET_SAVE_CONFIRM_BODY =
+        "ソウル・ソウルツリー・図鑑・装備・周回数・進行中の冒険をすべて削除し、はじめての状態に戻します。"
+            + "音量などの設定は残ります。この操作は取り消せません。";
+    public static final String RESET_SAVE_CONFIRM_HINT = "[Y] 初期化する   [N] / [ESC] やめる";
+    public static final String RESET_SAVE_FAILED_MESSAGE =
+        "セーブデータの初期化に失敗しました (ファイルを削除できませんでした)";
 
     // §15-1 初回 UI プリセット選択
     public static final String FIRST_RUN_PRESET_TITLE = "UI プリセットを選択してください";
@@ -446,9 +458,20 @@ public final class Strings {
     public static final String SETTINGS_THEME_DARK = "Dark";
     public static final String SETTINGS_ON = "ON";
     public static final String SETTINGS_OFF = "OFF";
+    public static final String SETTINGS_RESET_SAVE = "Reset Save Data";
+    public static final String SETTINGS_RESET_SAVE_VALUE = "Press ENTER";
     public static final String SETTINGS_HINT =
-        "Up/Down / WS: navigate   Left/Right / AD: change value   ESC: back";
+        "Up/Down / WS: navigate   Left/Right / AD: change value   ENTER: execute   ESC: back";
     public static final String TITLE_OPEN_SETTINGS_HINT = "[S] Settings";
+
+    // Visitor handoff save reset confirmation dialog
+    public static final String RESET_SAVE_CONFIRM_TITLE = "Reset all save data?";
+    public static final String RESET_SAVE_CONFIRM_BODY =
+        "This will delete all Soul, Soul Tree progress, collections, equipment, run count, "
+            + "and active runs. Audio and display settings will be kept. This cannot be undone.";
+    public static final String RESET_SAVE_CONFIRM_HINT = "[Y] Reset all   [N] / [ESC] Cancel";
+    public static final String RESET_SAVE_FAILED_MESSAGE =
+        "Failed to reset save data (could not delete save files)";
 
     // §15-1 First-run UI preset selection
     public static final String FIRST_RUN_PRESET_TITLE = "Choose a UI preset";

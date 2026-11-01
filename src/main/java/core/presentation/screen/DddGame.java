@@ -408,6 +408,27 @@ public final class DddGame extends Game {
     return true;
   }
 
+  /**
+   * 来場者交代用にセーブデータ (恒久進捗・進行中ラン) をすべて削除し、初期状態へ戻す。
+   *
+   * <p>{@code settings.json} (音量・フルスクリーン・UI プリセット・テーマ) は展示機材の設定として残す。
+   * 全消去のため精算・ソウル移行は行わない。削除に失敗した場合はメモリ上の {@code progress} / {@code runSession} を変更せず false を返す。
+   *
+   * @return 初期化に成功した場合 true
+   */
+  public boolean resetAllProgress() {
+    SaveManager.SaveResult result = persistence.saveManager().deleteAllProgress();
+    if (!result.isSuccess()) {
+      LOG.severe("セーブデータの初期化に失敗しました: " + result.message());
+      return false;
+    }
+    runSession = Optional.empty();
+    progress =
+        ProfileDataMapper.toPlayerProgress(
+            persistence.runLifecycle().profileOrInitial(), defaultLoadout());
+    return true;
+  }
+
   /** 新しいラン (= ダンジョン挑戦) を開始する。RunSession を作り直す。 */
   public void startNewRun() {
     // ADR-19: Random は引数注入で再現性を呼出元に委ねる (初期手札シャッフル + 毎ターンドロー)。
