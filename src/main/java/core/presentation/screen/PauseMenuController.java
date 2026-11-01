@@ -38,15 +38,33 @@ public final class PauseMenuController implements Disposable {
   private static final int ITEM_RETURN_TITLE = 3;
   private static final int ITEM_RESET_SAVE = 4;
 
-  private static final int MENU_TITLE_X = 760;
-  private static final int MENU_TITLE_Y = 840;
+  private static final int PANEL_W = 1200;
+  private static final int PANEL_H = 700;
+  private static final int PANEL_X = (RenderLayout.SCREEN_WIDTH - PANEL_W) / 2;
+  private static final int PANEL_Y = 230;
+  private static final int PANEL_BORDER = 4;
+
+  private static final int MENU_TITLE_X = 860;
+  private static final int MENU_TITLE_Y = 876;
   private static final int MENU_ITEM_X = 640;
-  private static final int MENU_TOP_Y = 700;
+  private static final int MENU_TOP_Y = 760;
   private static final int MENU_ROW_HEIGHT = RenderLayout.LARGE_LINE_HEIGHT + 16;
   private static final int MENU_HIT_WIDTH = 680;
   private static final int MENU_HIT_HEIGHT = 52;
-  private static final int MENU_ERROR_Y = MENU_TOP_Y - MENU_ROW_HEIGHT * MENU_ITEM_COUNT - 20;
-  private static final int MENU_HINT_Y = 160;
+  private static final int MENU_ERROR_X = PANEL_X + 64;
+  private static final int MENU_ERROR_Y = MENU_TOP_Y - MENU_ROW_HEIGHT * MENU_ITEM_COUNT - 12;
+  private static final int MENU_HINT_X = PANEL_X + 120;
+  private static final int MENU_HINT_Y = 356;
+  private static final int MENU_HINT_LINE2_Y = MENU_HINT_Y - RenderLayout.LARGE_LINE_HEIGHT;
+
+  private static final int SETTINGS_TITLE_X = 860;
+  private static final int SETTINGS_TITLE_Y = MENU_TITLE_Y;
+  private static final int SETTINGS_LABEL_X = RenderLayout.SETTINGS_LABEL_X;
+  private static final int SETTINGS_VALUE_X = RenderLayout.SETTINGS_VALUE_X;
+  private static final int SETTINGS_ROW_TOP_Y = MENU_TOP_Y;
+  private static final int SETTINGS_ROW_HEIGHT = MENU_ROW_HEIGHT;
+  private static final int SETTINGS_HINT_X = MENU_HINT_X;
+  private static final int SETTINGS_HINT_Y = 332;
 
   private enum State {
     CLOSED,
@@ -301,10 +319,12 @@ public final class PauseMenuController implements Disposable {
     switch (state) {
       case MAIN_MENU -> {
         drawDimOverlay(0.75f);
+        drawPanel();
         drawMainMenu();
       }
       case SETTINGS -> {
         drawDimOverlay(0.82f);
+        drawPanel();
         drawSettingsSubScreen();
       }
       case TUTORIAL -> {
@@ -337,6 +357,21 @@ public final class PauseMenuController implements Disposable {
     shapes.end();
   }
 
+  private void drawPanel() {
+    viewport.apply();
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    shapes.setProjectionMatrix(camera.combined);
+    shapes.begin(ShapeRenderer.ShapeType.Filled);
+    shapes.setColor(0.12f, 0.12f, 0.16f, 1f);
+    shapes.rect(PANEL_X, PANEL_Y, PANEL_W, PANEL_H);
+    shapes.setColor(0.7f, 0.7f, 0.8f, 1f);
+    shapes.rect(PANEL_X, PANEL_Y + PANEL_H - PANEL_BORDER, PANEL_W, PANEL_BORDER);
+    shapes.rect(PANEL_X, PANEL_Y, PANEL_W, PANEL_BORDER);
+    shapes.rect(PANEL_X, PANEL_Y, PANEL_BORDER, PANEL_H);
+    shapes.rect(PANEL_X + PANEL_W - PANEL_BORDER, PANEL_Y, PANEL_BORDER, PANEL_H);
+    shapes.end();
+  }
+
   private void drawMainMenu() {
     Fonts fonts = game.fonts();
     boolean jp = fonts.isJapaneseAvailable();
@@ -364,16 +399,17 @@ public final class PauseMenuController implements Disposable {
       large.draw(
           batch,
           jp ? Strings.Ja.RESET_SAVE_FAILED_MESSAGE : Strings.En.RESET_SAVE_FAILED_MESSAGE,
-          MENU_ITEM_X - 80,
+          MENU_ERROR_X,
           MENU_ERROR_Y);
     }
 
     large.setColor(Color.GRAY);
+    large.draw(batch, jp ? Strings.Ja.PAUSE_HINT : Strings.En.PAUSE_HINT, MENU_HINT_X, MENU_HINT_Y);
     large.draw(
         batch,
-        jp ? Strings.Ja.PAUSE_HINT : Strings.En.PAUSE_HINT,
-        RenderLayout.SETTINGS_LABEL_X - 80,
-        MENU_HINT_Y);
+        jp ? Strings.Ja.PAUSE_HINT_LINE2 : Strings.En.PAUSE_HINT_LINE2,
+        MENU_HINT_X,
+        MENU_HINT_LINE2_Y);
 
     large.setColor(Color.WHITE);
     batch.end();
@@ -393,29 +429,29 @@ public final class PauseMenuController implements Disposable {
     titleFont.draw(
         batch,
         jp ? Strings.Ja.SETTINGS_TITLE : Strings.En.SETTINGS_TITLE,
-        RenderLayout.SETTINGS_TITLE_X,
-        RenderLayout.SETTINGS_TITLE_Y);
+        SETTINGS_TITLE_X,
+        SETTINGS_TITLE_Y);
 
     for (int i = 0; i < SettingsScreen.SETTING_ITEM_COUNT; i++) {
       boolean selected = (i == settingsSelectedItem);
-      int y = RenderLayout.SETTINGS_ROW_TOP_Y - RenderLayout.SETTINGS_ROW_HEIGHT * i;
+      int y = SETTINGS_ROW_TOP_Y - SETTINGS_ROW_HEIGHT * i;
       String label = SettingsScreen.getLabel(jp, i);
       String value = SettingsScreen.getValue(currentSettings, jp, i);
 
       large.setColor(selected ? Color.YELLOW : Color.LIGHT_GRAY);
       String prefix = selected ? "> " : "  ";
-      large.draw(batch, prefix + label, RenderLayout.SETTINGS_LABEL_X, y);
+      large.draw(batch, prefix + label, SETTINGS_LABEL_X, y);
 
       large.setColor(selected ? Color.WHITE : Color.LIGHT_GRAY);
-      large.draw(batch, value, RenderLayout.SETTINGS_VALUE_X, y);
+      large.draw(batch, value, SETTINGS_VALUE_X, y);
     }
 
     large.setColor(Color.GRAY);
     large.draw(
         batch,
         jp ? Strings.Ja.PAUSE_SETTINGS_HINT : Strings.En.PAUSE_SETTINGS_HINT,
-        RenderLayout.SETTINGS_LABEL_X,
-        RenderLayout.SETTINGS_HINT_Y);
+        SETTINGS_HINT_X,
+        SETTINGS_HINT_Y);
 
     large.setColor(Color.WHITE);
     batch.end();

@@ -179,8 +179,8 @@ public final class Strings {
           最終層 (標準 3 層) のボスを倒すとクリア! 倒れても獲得ソウルは
           持ち帰れ、タイトルの [T] ソウルツリーで強化できます (1 周目後解禁)。
 
-        【AP (行動力)】 1 ターンに使える量は速度ステータスと同じです。
-          毎ターン開始時に満タンへ戻ります (次ターンへの持ち越し不可)。
+        【AP (行動力)】 1 ターンに使える行動力 (右上に表示)。毎ターン開始時に
+          速度と同じ量まで回復します (持ち越し不可。最初のターンだけ 5)。
           移動 1・待機 1・カードは左上の数字ぶん消費し、0 で自動ターン終了。
 
         【移動】 WASD / 矢印キー / マップクリック で 1 マス移動 (AP 1 消費)
@@ -224,14 +224,14 @@ public final class Strings {
     public static final String PAUSE_ITEM_TUTORIAL = "3. 操作説明";
     public static final String PAUSE_ITEM_RETURN_TITLE = "4. タイトルへ戻る";
     public static final String PAUSE_ITEM_RESET_SAVE = "5. セーブを初期化 (来場者交代)";
-    public static final String PAUSE_HINT =
-        "↑↓ / WS: 選択   ENTER / SPACE / 1〜5 / クリック: 決定   ESC: ゲームに戻る";
+    public static final String PAUSE_HINT = "↑↓ / WS: 選択   ENTER / SPACE / 1〜5 / クリック: 決定";
+    public static final String PAUSE_HINT_LINE2 = "ESC: ゲームに戻る";
     public static final String PAUSE_SETTINGS_HINT = "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ESC: メニューへ戻る";
 
     // 一時停止メニュー「タイトルへ戻る」確認ダイアログ
     public static final String RETURN_TITLE_CONFIRM_TITLE = "タイトルへ戻りますか?";
     public static final String RETURN_TITLE_CONFIRM_BODY =
-        "この層での進行は失われます。2 層目以降なら、タイトルの [L] つづきから で直前の層の始めから再開できます。";
+        "この層での進行は失われます。\n2 層目以降なら、タイトルの [L] つづきから で直前の層の始めから再開できます。";
     public static final String RETURN_TITLE_CONFIRM_HINT = "[Y] タイトルへ   [N] / [ESC] やめる";
 
     // §15-1 初回 UI プリセット選択
@@ -445,8 +445,8 @@ public final class Strings {
           Defeat the final floor boss (default 3 floors) to clear the dungeon!
           Earned Soul is kept on death for the [T] Soul Tree (after 1st run).
 
-        [AP] Action Points per turn equal your Speed stat.
-          AP refills to full each turn (unused AP does not carry over).
+        [AP] Action Points, shown top-right. At the start of each turn
+          they refill to your Speed (no carry-over; the very first turn starts at 5).
           Move: 1, Wait: 1, Cards: top-left cost. Turn ends automatically at 0 AP.
 
         [Move] WASD / Arrows / Click map to move 1 tile (costs 1 AP).
@@ -494,7 +494,8 @@ public final class Strings {
     public static final String PAUSE_ITEM_RETURN_TITLE = "4. Return to Title";
     public static final String PAUSE_ITEM_RESET_SAVE = "5. Reset Save Data";
     public static final String PAUSE_HINT =
-        "Up/Down / WS: select   ENTER / SPACE / 1-5 / Click: confirm   ESC: resume";
+        "Up/Down / WS: select   ENTER / SPACE / 1-5 / Click: confirm";
+    public static final String PAUSE_HINT_LINE2 = "ESC: resume";
     public static final String PAUSE_SETTINGS_HINT =
         "Up/Down / WS: navigate   Left/Right / AD: change value   ESC: back to menu";
 
