@@ -294,8 +294,7 @@ public final class SaveManager {
       }
     }
     if (!remaining.isEmpty()) {
-      return SaveResult.failure(
-          "Failed to delete progress files: " + String.join(", ", remaining));
+      return SaveResult.failure("Failed to delete progress files: " + String.join(", ", remaining));
     }
     return SaveResult.ok();
   }

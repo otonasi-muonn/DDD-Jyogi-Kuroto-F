@@ -33,6 +33,7 @@ import core.infrastructure.save.RunCheckpointMapper;
 import core.infrastructure.save.RunLifecycle;
 import core.infrastructure.save.SaveData;
 import core.infrastructure.save.SaveDataConverter;
+import core.infrastructure.save.SaveManager;
 import core.infrastructure.save.Settings;
 import core.presentation.render.Fonts;
 import core.presentation.render.GameResources;
@@ -417,7 +418,7 @@ public final class DddGame extends Game {
    * @return 初期化に成功した場合 true
    */
   public boolean resetAllProgress() {
-    SaveManager.SaveResult result = persistence.saveManager().deleteAllProgress();
+    SaveManager.SaveResult result = persistence.runLifecycle().deleteAllProgress();
     if (!result.isSuccess()) {
       LOG.severe("セーブデータの初期化に失敗しました: " + result.message());
       return false;

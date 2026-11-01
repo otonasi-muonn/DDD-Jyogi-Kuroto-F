@@ -175,23 +175,23 @@ public final class Strings {
     public static final String TUTORIAL_TITLE = "操作説明";
     public static final String TUTORIAL_BODY =
         """
-        【移動】 WASD / 矢印キー / マップクリック で 1 マス移動 (1 AP 消費)
+        【目的】 階段を踏むと層末ノード (3 択) を選んで次の層へ進みます。
+          最終層 (標準 3 層) のボスを倒すとクリア! 倒れても獲得ソウルは
+          持ち帰れ、タイトルの [T] ソウルツリーで強化できます (1 周目後解禁)。
 
-        【カード使用】
-          1. 数字キー (1-9) or 手札クリック でカード選択
-          2. WASD / 矢印キー / マップクリック で発射方向を指定 → カード使用
-          ESC で選択キャンセル、同じ数字キーで選択解除
+        【AP (行動力)】 1 ターンに使える量は速度ステータスと同じです。
+          毎ターン開始時に満タンへ戻ります (次ターンへの持ち越し不可)。
+          移動 1・待機 1・カードは左上の数字ぶん消費し、0 で自動ターン終了。
 
-        【移動カード】 ダッシュ等は AP 消費で「移動権」を貯め、
-                       その後 WASD / マップクリックで 1 マスずつ進む
-
+        【移動】 WASD / 矢印キー / マップクリック で 1 マス移動 (AP 1 消費)
+          ダッシュ等の移動カードは「移動権」を得て 1 マスずつ進みます。
+        【カード使用】 1. 数字キー (1-9) または手札クリックでカードを選択
+          2. WASD / 矢印キー / マップクリックで方向を指定して発動 (ESC で解除)
         【待機】 SPACE でその場に留まる (AP 1 消費)
-
         【ターン終了】 ENTER / 画面右下「ターン終了」ボタン
-
-        階段 (黄色) に到達で次層へ。敵撃破でソウル + 金貨獲得。
-        層末でステ強化 / ショップ / 休憩 / イベント を選択。""";
-    public static final String TUTORIAL_CLOSE_HINT = "ENTER / ESC / クリック で閉じる";
+        【メニュー】 ESC で一時停止メニュー (設定・操作説明・タイトルへ戻る)""";
+    public static final String TUTORIAL_CLOSE_HINT =
+        "ENTER / ESC / クリック で閉じる (ESC メニューからいつでも見られます)";
 
     // §15-1 / §15-8 設定画面
     public static final String SETTINGS_TITLE = "設定";
@@ -207,18 +207,15 @@ public final class Strings {
     public static final String SETTINGS_OFF = "OFF";
     public static final String SETTINGS_RESET_SAVE = "セーブデータを初期化";
     public static final String SETTINGS_RESET_SAVE_VALUE = "ENTER で実行";
-    public static final String SETTINGS_HINT =
-        "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ENTER: 実行   ESC: 戻る";
+    public static final String SETTINGS_HINT = "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ENTER: 実行   ESC: 戻る";
     public static final String TITLE_OPEN_SETTINGS_HINT = "[S] 設定";
 
     // 来場者交代用セーブデータ初期化の確認ダイアログ
     public static final String RESET_SAVE_CONFIRM_TITLE = "セーブデータを初期化しますか?";
     public static final String RESET_SAVE_CONFIRM_BODY =
-        "ソウル・ソウルツリー・図鑑・装備・周回数・進行中の冒険をすべて削除し、はじめての状態に戻します。"
-            + "音量などの設定は残ります。この操作は取り消せません。";
+        "ソウル・ソウルツリー・図鑑・装備・周回数・進行中の冒険をすべて削除し、はじめての状態に戻します。" + "音量などの設定は残ります。この操作は取り消せません。";
     public static final String RESET_SAVE_CONFIRM_HINT = "[Y] 初期化する   [N] / [ESC] やめる";
-    public static final String RESET_SAVE_FAILED_MESSAGE =
-        "セーブデータの初期化に失敗しました (ファイルを削除できませんでした)";
+    public static final String RESET_SAVE_FAILED_MESSAGE = "セーブデータの初期化に失敗しました (ファイルを削除できませんでした)";
 
     // ダンジョン内 ESC 一時停止メニュー
     public static final String PAUSE_TITLE = "一時停止";
@@ -229,8 +226,7 @@ public final class Strings {
     public static final String PAUSE_ITEM_RESET_SAVE = "5. セーブを初期化 (来場者交代)";
     public static final String PAUSE_HINT =
         "↑↓ / WS: 選択   ENTER / SPACE / 1〜5 / クリック: 決定   ESC: ゲームに戻る";
-    public static final String PAUSE_SETTINGS_HINT =
-        "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ESC: メニューへ戻る";
+    public static final String PAUSE_SETTINGS_HINT = "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ESC: メニューへ戻る";
 
     // 一時停止メニュー「タイトルへ戻る」確認ダイアログ
     public static final String RETURN_TITLE_CONFIRM_TITLE = "タイトルへ戻りますか?";
@@ -445,24 +441,23 @@ public final class Strings {
     public static final String TUTORIAL_TITLE = "How to Play";
     public static final String TUTORIAL_BODY =
         """
-        [Move] WASD / Arrows / Click map  - Move 1 tile (1 AP)
+        [Goal] Step on the stairs to pick a layer-end node (3 choices) and descend.
+          Defeat the final floor boss (default 3 floors) to clear the dungeon!
+          Earned Soul is kept on death for the [T] Soul Tree (after 1st run).
 
-        [Use a Card]
-          1. Press 1-9 or click a card to select
-          2. Press WASD / arrow key or click map to fire
-          ESC to cancel, same number key to deselect
+        [AP] Action Points per turn equal your Speed stat.
+          AP refills to full each turn (unused AP does not carry over).
+          Move: 1, Wait: 1, Cards: top-left cost. Turn ends automatically at 0 AP.
 
-        [Movement Cards] Dash etc. spend AP to grant move tokens,
-                          then WASD / map click moves 1 tile each
-
+        [Move] WASD / Arrows / Click map to move 1 tile (costs 1 AP).
+          Movement cards (Dash, etc.) grant move tokens to step 1 tile each.
+        [Use a Card] 1. Press 1-9 or click a card in hand to select
+          2. Press WASD / Arrows or click map to aim and fire (ESC to cancel)
         [Wait] SPACE to stay in place (costs 1 AP)
-
         [End Turn] ENTER / "End Turn" button (bottom right)
-
-        Reach the yellow stairs to descend.
-        Defeat enemies to earn Soul + Gold.
-        Pick a node at layer end: stat / shop / rest / event.""";
-    public static final String TUTORIAL_CLOSE_HINT = "ENTER / ESC / Click to close";
+        [Menu] ESC to open Pause Menu (Settings / Help / Return to Title)""";
+    public static final String TUTORIAL_CLOSE_HINT =
+        "ENTER / ESC / Click to close (View anytime from the ESC menu)";
 
     // §15-1 / §15-8 Settings screen
     public static final String SETTINGS_TITLE = "Settings";

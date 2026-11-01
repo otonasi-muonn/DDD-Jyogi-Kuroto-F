@@ -25,7 +25,8 @@ import java.util.Optional;
 /**
  * ダンジョン内の ESC 一時停止メニューとそのサブ画面 (設定 / 操作説明 / タイトルへ戻る確認 / セーブ初期化確認) を管理するコントローラ。
  *
- * <p>{@link EliteRewardOrchestrator} と同様に {@link DungeonScreen} から利用する部品として切り出し、 メニュー表示中の入力・描画・リソース解放を一元管理する。
+ * <p>{@link EliteRewardOrchestrator} と同様に {@link DungeonScreen} から利用する部品として切り出し、
+ * メニュー表示中の入力・描画・リソース解放を一元管理する。
  */
 public final class PauseMenuController implements Disposable {
 
@@ -97,8 +98,8 @@ public final class PauseMenuController implements Disposable {
   /**
    * 一時停止メニューを開く。
    *
-   * <p>層末・Elite 報酬ポップアップの {@code Stage} が {@code InputProcessor} に残っていると メニュー越しのクリックが選択として処理されるため、開いた時点で
-   * {@code setInputProcessor(null)} にする。
+   * <p>層末・Elite 報酬ポップアップの {@code Stage} が {@code InputProcessor} に残っていると
+   * メニュー越しのクリックが選択として処理されるため、開いた時点で {@code setInputProcessor(null)} にする。
    */
   public void open() {
     ensureResources();
@@ -113,8 +114,8 @@ public final class PauseMenuController implements Disposable {
   /**
    * メニュー表示中の入力を 1 フレーム分処理する。
    *
-   * <p>画面遷移 ({@link DddGame#changeScreen}) が発生した場合は、遷移前にサブダイアログ等を解放した上で {@code true} を返す。呼出元 ({@link
-   * DungeonScreen#render}) は {@code true} を受け取ったら直ちに return し、破棄済みの {@code batch} 等に触れないこと。
+   * <p>画面遷移 ({@link DddGame#changeScreen}) が発生した場合は、遷移前にサブダイアログ等を解放した上で {@code true} を返す。呼出元
+   * ({@link DungeonScreen#render}) は {@code true} を受け取ったら直ちに return し、破棄済みの {@code batch} 等に触れないこと。
    *
    * @return 画面遷移が発生した場合 true
    */
@@ -348,10 +349,7 @@ public final class PauseMenuController implements Disposable {
 
     titleFont.setColor(Color.WHITE);
     titleFont.draw(
-        batch,
-        jp ? Strings.Ja.PAUSE_TITLE : Strings.En.PAUSE_TITLE,
-        MENU_TITLE_X,
-        MENU_TITLE_Y);
+        batch, jp ? Strings.Ja.PAUSE_TITLE : Strings.En.PAUSE_TITLE, MENU_TITLE_X, MENU_TITLE_Y);
 
     for (int i = 0; i < MENU_ITEM_COUNT; i++) {
       boolean selected = (i == selectedIndex);
