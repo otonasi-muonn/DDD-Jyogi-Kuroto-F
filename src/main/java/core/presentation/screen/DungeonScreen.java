@@ -111,6 +111,9 @@ public final class DungeonScreen extends ScreenAdapter {
   /** ステータスポップアップ表示中フラグ。true の間はプレイヤー入力・進行を凍結する (モーダル)。 */
   private boolean statusPanelOpen;
 
+  /** ダンジョン内の ESC 一時停止メニュー。 */
+  private PauseMenuController pauseMenu;
+
   /** マップタイル: 壁テクスチャ (チームメイト素材、ピクセルアート、Nearest filter)。 */
   private com.badlogic.gdx.graphics.Texture wallTexture;
 
@@ -157,6 +160,7 @@ public final class DungeonScreen extends ScreenAdapter {
     // bindSkillSlotSizeSupplier は不要 (F1-F4 入力経路を PlayerInputs から削除済)。
     statusPopup = new StatusPopup(game.fonts().large(), game.fonts().isJapaneseAvailable());
     eliteReward = new EliteRewardOrchestrator(game, rng, effects);
+    pauseMenu = new PauseMenuController(game);
     // マップタイルテクスチャをロード (ピクセルアート → Nearest filter で 80px 拡大時のボケ防止)。
     wallTexture = new com.badlogic.gdx.graphics.Texture(Gdx.files.internal("tiles/wall.png"));
     wallTexture.setFilter(
@@ -198,9 +202,45 @@ public final class DungeonScreen extends ScreenAdapter {
 
   @Override
   public void render(float delta) {
-    handleStatusPanelToggle(); // §15-4: Tab でステータスポップアップ開閉
-    if (!statusPanelOpen) {
+    // すでに一時停止メニューが表示中のフレーム: ゲーム側の進行・エフェクト・ポップアップ入力はすべて停止する。
+    // メニューを閉じたフレームも、同じキーやクリックがゲーム操作に流れないよう描画して即 return する。
+    if (pauseMenu != null && pauseMenu.isActive()) {
+      if (pauseMenu.handleInput()) {
+        return; // 画面遷移済み: dispose された DungeonScreen の batch やダイアログに触れない
+      }
+      drawFrame();
+      if (pauseMenu.isActive()) {
+        pauseMenu.render(delta);
+      }
+      return;
+    }
+
+    // ESC の優先順位 (フレーム先頭の状態で先勝ち分岐し、1 回の ESC で 1 動作だけ行う):
+    // 1. ステータスポップアップ表示中 → 閉じる (handleStatusPanelToggle)
+    // 2. プレイヤーターン中にカード選択中 (報酬・層末ポップアップ非表示) → 選択キャンセル (PlayerInputs)
+    // 3. それ以外 (プレイヤーターン / 敵ターン / 層末ノード選択中 / Elite 報酬表示中) → 一時停止メニューを開く
+    boolean wasStatusPanelOpen = statusPanelOpen;
+    boolean canCancelCardSelection =
+        !wasStatusPanelOpen
+            && nodeChoice == null
+            && !eliteReward.isActive()
+            && game.requireRunSession().context().state().phase() == TurnPhase.PLAYER_TURN
+            && playerInputs.pendingCardIndex() >= 0;
+
+    if (!wasStatusPanelOpen
+        && !canCancelCardSelection
+        && pauseMenu != null
+        && Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
+      pauseMenu.open();
+      drawFrame();
+      pauseMenu.render(delta);
+      return;
+    }
+
+    handleStatusPanelToggle(); // §15-4: Tab / ESC でステータスポップアップ開閉
+    if (!statusPanelOpen && !wasStatusPanelOpen) {
       // ステータスポップアップ・Elite 報酬ポップアップ表示中はゲーム進行を凍結する (モーダル)。
+      // またステータスを閉じた同一フレームでもゲーム入力を走らせない (ESC 二重処理防止)。
       if (!eliteReward.isActive()) {
         updateState(delta);
       }
@@ -700,6 +740,9 @@ public final class DungeonScreen extends ScreenAdapter {
     if (statusPopup != null) {
       statusPopup.resize(width, height);
     }
+    if (pauseMenu != null) {
+      pauseMenu.resize(width, height);
+    }
   }
 
   @Override
@@ -713,7 +756,12 @@ public final class DungeonScreen extends ScreenAdapter {
       nodeChoice.dispose();
       nodeChoice = null;
     }
-    eliteReward.dispose();
+    if (eliteReward != null) {
+      eliteReward.dispose();
+    }
+    if (pauseMenu != null) {
+      pauseMenu.dispose();
+    }
   }
 
   @Override
@@ -734,6 +782,10 @@ public final class DungeonScreen extends ScreenAdapter {
     }
     if (eliteReward != null) {
       eliteReward.dispose();
+    }
+    if (pauseMenu != null) {
+      pauseMenu.dispose();
+      pauseMenu = null;
     }
     if (wallTexture != null) {
       wallTexture.dispose();

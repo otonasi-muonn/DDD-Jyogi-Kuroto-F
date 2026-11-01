@@ -30,7 +30,7 @@ public final class Strings {
     public static final String HUD_SOUL = "ソウル";
     public static final String HUD_PHASE = "フェーズ";
     public static final String HUD_SPEED = "速度";
-    public static final String HUD_HINT = "Tab: ステータス   ENTER: ターン終了";
+    public static final String HUD_HINT = "Tab: ステータス   ENTER: ターン終了   ESC: メニュー";
 
     // 移動権保持中の操作ヒント (ADR-21 §15-5)
     public static final String MOVE_TOKEN_HINT = "移動権保持中: WASD/矢印で移動   ENTER で終了";
@@ -220,6 +220,24 @@ public final class Strings {
     public static final String RESET_SAVE_FAILED_MESSAGE =
         "セーブデータの初期化に失敗しました (ファイルを削除できませんでした)";
 
+    // ダンジョン内 ESC 一時停止メニュー
+    public static final String PAUSE_TITLE = "一時停止";
+    public static final String PAUSE_ITEM_RESUME = "1. ゲームに戻る";
+    public static final String PAUSE_ITEM_SETTINGS = "2. 設定";
+    public static final String PAUSE_ITEM_TUTORIAL = "3. 操作説明";
+    public static final String PAUSE_ITEM_RETURN_TITLE = "4. タイトルへ戻る";
+    public static final String PAUSE_ITEM_RESET_SAVE = "5. セーブを初期化 (来場者交代)";
+    public static final String PAUSE_HINT =
+        "↑↓ / WS: 選択   ENTER / SPACE / 1〜5 / クリック: 決定   ESC: ゲームに戻る";
+    public static final String PAUSE_SETTINGS_HINT =
+        "↑↓ / WS: 項目選択   ←→ / AD: 値変更   ESC: メニューへ戻る";
+
+    // 一時停止メニュー「タイトルへ戻る」確認ダイアログ
+    public static final String RETURN_TITLE_CONFIRM_TITLE = "タイトルへ戻りますか?";
+    public static final String RETURN_TITLE_CONFIRM_BODY =
+        "この層での進行は失われます。2 層目以降なら、タイトルの [L] つづきから で直前の層の始めから再開できます。";
+    public static final String RETURN_TITLE_CONFIRM_HINT = "[Y] タイトルへ   [N] / [ESC] やめる";
+
     // §15-1 初回 UI プリセット選択
     public static final String FIRST_RUN_PRESET_TITLE = "UI プリセットを選択してください";
     public static final String FIRST_RUN_PRESET_HINT = "1 / 2 / 3 キーで選択";
@@ -274,7 +292,7 @@ public final class Strings {
     public static final String HUD_SOUL = "Soul";
     public static final String HUD_PHASE = "Phase";
     public static final String HUD_SPEED = "Speed";
-    public static final String HUD_HINT = "Tab: Status   ENTER: End Turn";
+    public static final String HUD_HINT = "Tab: Status   ENTER: End Turn   ESC: Menu";
 
     // Move token hint during movement mode (ADR-21 §15-5)
     public static final String MOVE_TOKEN_HINT =
@@ -472,6 +490,26 @@ public final class Strings {
     public static final String RESET_SAVE_CONFIRM_HINT = "[Y] Reset all   [N] / [ESC] Cancel";
     public static final String RESET_SAVE_FAILED_MESSAGE =
         "Failed to reset save data (could not delete save files)";
+
+    // Dungeon ESC pause menu
+    public static final String PAUSE_TITLE = "PAUSED";
+    public static final String PAUSE_ITEM_RESUME = "1. Resume";
+    public static final String PAUSE_ITEM_SETTINGS = "2. Settings";
+    public static final String PAUSE_ITEM_TUTORIAL = "3. How to Play";
+    public static final String PAUSE_ITEM_RETURN_TITLE = "4. Return to Title";
+    public static final String PAUSE_ITEM_RESET_SAVE = "5. Reset Save Data";
+    public static final String PAUSE_HINT =
+        "Up/Down / WS: select   ENTER / SPACE / 1-5 / Click: confirm   ESC: resume";
+    public static final String PAUSE_SETTINGS_HINT =
+        "Up/Down / WS: navigate   Left/Right / AD: change value   ESC: back to menu";
+
+    // Pause menu "Return to Title" confirmation dialog
+    public static final String RETURN_TITLE_CONFIRM_TITLE = "Return to title?";
+    public static final String RETURN_TITLE_CONFIRM_BODY =
+        "Progress on the current floor will be lost. From floor 2 onward, "
+            + "you can resume from the start of the floor via [L] Continue on the title screen.";
+    public static final String RETURN_TITLE_CONFIRM_HINT =
+        "[Y] Return to title   [N] / [ESC] Cancel";
 
     // §15-1 First-run UI preset selection
     public static final String FIRST_RUN_PRESET_TITLE = "Choose a UI preset";

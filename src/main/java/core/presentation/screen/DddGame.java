@@ -429,6 +429,23 @@ public final class DddGame extends Game {
     return true;
   }
 
+  /**
+   * ダンジョン内の一時停止メニューからランを中断してタイトルへ戻る際に呼ぶ。
+   *
+   * <p>ファイルの書込・削除は一切行わず、メモリ上の {@code runSession} を破棄し、{@code progress} を {@link #create()}
+   * と同じ方法でディスクの {@code profile.json} から読み直す。
+   *
+   * <p>理由: ラン開始時に {@code progress.playerSoul} は 0 にされて {@code Player} 側へ移っている。{@code RunSession}
+   * だけ捨ててメモリの {@code progress} を使い続けると、次の新規ランで持越しソウル 0 のまま Profile
+   * を上書きしてソウルを失う。ディスクから読み直せば「ゲームを再起動したのと同じ状態」になり、層境界セーブがあればタイトルの [L] つづきから で直前の層の始めから再開できる。
+   */
+  public void suspendRunToTitle() {
+    runSession = Optional.empty();
+    progress =
+        ProfileDataMapper.toPlayerProgress(
+            persistence.runLifecycle().profileOrInitial(), defaultLoadout());
+  }
+
   /** 新しいラン (= ダンジョン挑戦) を開始する。RunSession を作り直す。 */
   public void startNewRun() {
     // ADR-19: Random は引数注入で再現性を呼出元に委ねる (初期手札シャッフル + 毎ターンドロー)。
